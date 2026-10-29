@@ -5,7 +5,7 @@ const fs = require("fs");
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const publicDir = path.join(__dirname, "public");
-const dataDir = path.join(__dirname, "data");
+const dataDir = "/data";
 const inboxFile = path.join(dataDir, "contact.log");
 
 app.disable("x-powered-by");
