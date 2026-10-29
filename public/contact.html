@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — NOVA</title>
+<meta name="description" content="Start a project with NOVA. Briefs, timelines, budgets and a direct line to the people building.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070c'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2300ffc3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/base.css">
+<style>
+  .chip.on{color:#04120d;background:var(--teal);border-color:var(--teal)}
+  .form-card{border:1px solid var(--line);border-radius:20px;padding:clamp(22px,3.4vw,38px);background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0)),var(--panel)}
+  .form-card h2{font-size:clamp(1.3rem,2.4vw,1.8rem);letter-spacing:-.02em;font-weight:600}
+  .form-card > p{margin-top:10px;color:var(--muted);font-size:.94rem;line-height:1.7}
+  .form{margin-top:26px}
+  .form .submit-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:4px}
+  .form-note{font-family:var(--mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:rgba(139,155,152,.65);line-height:1.8;max-width:40ch}
+  .side-note{margin-top:22px;padding:22px 24px;border:1px solid var(--line);border-radius:18px;background:rgba(123,92,255,.06)}
+  .side-note h4{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--violet)}
+  .side-note p{margin-top:12px;color:var(--muted);font-size:.9rem;line-height:1.7}
+  .faq-head{margin-top:0}
+  @media (max-width:760px){
+    .honeypot{display:none}
+  }
+</style>
+</head>
+<body class="page-contact">
+
+<div id="preloader">
+  <div class="pre-inner">
+    <div class="pre-top"><span>nova / contact</span><span id="loadPct" class="pre-pct">000</span></div>
+    <div class="pre-bar"><i id="loadBar"></i></div>
+    <div class="pre-lines">
+      <span>&gt; opening a session</span>
+      <span>&gt; loading brief form</span>
+      <span>&gt; warming the line</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="cursor"><div class="cursor-dot"></div><div class="cursor-ring"></div></div>
+<div class="progress"><i id="bar"></i></div>
+<div class="page-transition"></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="/"><i></i>NOVA</a>
+  <nav class="nav-links">
+    <a href="/work" data-page="work">Work</a>
+    <a href="/studio" data-page="studio">Studio</a>
+    <a href="/contact" data-page="contact">Contact</a>
+    <button id="soundToggle" class="sound-btn" aria-pressed="false">Sound off</button>
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<nav class="drawer" id="drawer" aria-label="Mobile">
+  <a href="/" data-page="home">Home</a>
+  <a href="/work" data-page="work">Work</a>
+  <a href="/studio" data-page="studio">Studio</a>
+  <a href="/contact" data-page="contact">Contact</a>
+</nav>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <div class="eyebrow fade">Open line — replies within 48h</div>
+      <h1 class="page-title fade" style="transition-delay:.1s">Start a<br><span class="outline">project.</span></h1>
+      <p class="page-lede fade" style="transition-delay:.25s">
+        Tell us what you are building, what it has to survive, and when it has to be live.
+        The brief does not need to be polished. A paragraph and a deadline is enough to start.
+      </p>
+      <div class="page-meta fade" style="transition-delay:.35s">
+        <span><b>2</b> slots open</span>
+        <span><b>Q1</b> 2027</span>
+        <span><b>48h</b> reply</span>
+        <span><b>Amsterdam</b> / remote</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight" style="padding-top:0">
+    <div class="contact-grid">
+
+      <div class="form-card reveal">
+        <h2>Project brief</h2>
+        <p>Everything here is optional except name, email and a sentence about the work.</p>
+
+        <form class="form" id="contactForm" novalidate>
+          <div class="row-2">
+            <div class="field" data-field="name">
+              <label for="name">Name *</label>
+              <input id="name" name="name" type="text" autocomplete="name" placeholder="Your name" required>
+              <span class="err">Tell us who you are.</span>
+            </div>
+            <div class="field" data-field="email">
+              <label for="email">Email *</label>
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+              <span class="err">That email does not look right.</span>
+            </div>
+          </div>
+
+          <div class="row-2">
+            <div class="field" data-field="company">
+              <label for="company">Company</label>
+              <input id="company" name="company" type="text" autocomplete="organization" placeholder="Optional">
+              <span class="err"></span>
+            </div>
+            <div class="field" data-field="budget">
+              <label for="budget">Budget</label>
+              <select id="budget" name="budget">
+                <option value="">Select a range</option>
+                <option value="10-25k">€10k — €25k</option>
+                <option value="25-50k">€25k — €50k</option>
+                <option value="50-100k">€50k — €100k</option>
+                <option value="100k+">€100k +</option>
+                <option value="unsure">Not sure yet</option>
+              </select>
+              <span class="err"></span>
+            </div>
+          </div>
+
+          <div class="field" data-field="scope">
+            <label>What do you need</label>
+            <div class="chips" id="scopeChips">
+              <label class="chip"><input type="checkbox" name="scope" value="Identity">Identity</label>
+              <label class="chip"><input type="checkbox" name="scope" value="Website">Website</label>
+              <label class="chip"><input type="checkbox" name="scope" value="Realtime / WebGL">Realtime / WebGL</label>
+              <label class="chip"><input type="checkbox" name="scope" value="Product UI">Product UI</label>
+              <label class="chip"><input type="checkbox" name="scope" value="Sound">Sound</label>
+              <label class="chip"><input type="checkbox" name="scope" value="Something else">Something else</label>
+            </div>
+            <span class="err"></span>
+          </div>
+
+          <div class="field" data-field="message">
+            <label for="message">The brief *</label>
+            <textarea id="message" name="message" placeholder="What is it, who is it for, what does success look like, and when does it need to be live?" required></textarea>
+            <span class="err">Give us at least a couple of sentences.</span>
+          </div>
+
+          <div class="field" data-field="consent">
+            <label class="consent" for="consent">
+              <input id="consent" name="consent" type="checkbox" required>
+              <span>I am fine with NOVA storing this message to reply to it. Nothing else, no list.</span>
+            </label>
+            <span class="err">We need a yes here to reply.</span>
+          </div>
+
+          <div class="honeypot" aria-hidden="true">
+            <label for="website">Website</label>
+            <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="submit-row">
+            <button class="btn primary" type="submit" id="submitBtn"><span>Send brief</span><span class="arrow">↗</span></button>
+            <span class="form-note">Goes straight to the studio inbox. No CRM, no drip sequence.</span>
+          </div>
+
+          <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <aside class="reveal">
+        <div class="info-list">
+          <div class="info-item">
+            <span>Email</span>
+            <b><a href="mailto:hello@nova.studio">hello@nova.studio</a></b>
+          </div>
+          <div class="info-item">
+            <span>Studio</span>
+            <b>Prinsengracht 402<br>1016 JH Amsterdam</b>
+          </div>
+          <div class="info-item">
+            <span>New business</span>
+            <b><a href="mailto:iris@nova.studio">iris@nova.studio</a></b>
+          </div>
+          <div class="info-item">
+            <span>Elsewhere</span>
+            <b><a href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram</a> · <a href="https://www.are.na/" target="_blank" rel="noopener">Are.na</a> · <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a></b>
+          </div>
+        </div>
+
+        <div class="hours">
+          <h4>Studio hours</h4>
+          <dl>
+            <div><dt>Mon — Thu</dt><b>09:30 — 18:00</b></div>
+            <div><dt>Fri</dt><b>09:30 — 15:00</b></div>
+            <div><dt>Weekend</dt><b>Closed</b></div>
+          </dl>
+        </div>
+
+        <div class="side-note">
+          <h4>Not a fit for the form?</h4>
+          <p>If the brief is under NDA, or it is a two-line question, email directly. We answer those first.</p>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="label reveal">FAQ</div>
+    <div class="acc reveal">
+      <div class="acc-item open">
+        <button class="acc-trigger" aria-expanded="true">What does a build usually cost?<i></i></button>
+        <div class="acc-panel">
+          <p>Most projects land between €35k and €90k depending on scope. Identity plus site, realtime work and sound sit at the top of that range. We will give you a number in the first reply, not after a discovery phase.</p>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger" aria-expanded="false">How long does it take?<i></i></button>
+        <div class="acc-panel">
+          <p>A focused site is six to eight weeks. Identity plus build is ten to fourteen. We work in two-week blocks and share a running build from day one, so you always know where it stands.</p>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger" aria-expanded="false">Who owns the code and the design?<i></i></button>
+        <div class="acc-panel">
+          <p>You do, on final payment. We hand over the repo, the build script, the type and colour tokens, and a recorded walkthrough. No licence back to us, no lock-in.</p>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger" aria-expanded="false">Do you work with agencies?<i></i></button>
+        <div class="acc-panel">
+          <p>Yes, as the build partner on a defined scope. We stay out of the client relationship and work directly with the design team. White-label is fine.</p>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger" aria-expanded="false">Can you take over an existing site?<i></i></button>
+        <div class="acc-panel">
+          <p>Usually. Send the repo or a link and we will tell you honestly whether it is a rebuild or a rescue. We do not take on maintenance-only work.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="label reveal">Elsewhere</div>
+    <h2 class="reveal">Still<br><span class="outline">reading?</span></h2>
+    <div class="row reveal">
+      <a class="btn primary magnet" href="/work"><span>See the work</span><span class="arrow">↗</span></a>
+      <a class="btn magnet" href="/studio"><span>Meet the studio</span><span class="arrow">↗</span></a>
+    </div>
+    <div class="note reveal">Briefs answered within 48h, Monday to Friday</div>
+  </section>
+</main>
+
+<footer>
+  <span>© <span data-year>2026</span> NOVA Studio</span>
+  <span>Built with shaders &amp; cold coffee</span>
+  <span class="foot-links"><a href="/work">Work</a><a href="/studio">Studio</a><a href="/contact">Contact</a></span>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+<script>
+(() => {
+  'use strict';
+
+  const form = document.getElementById('contactForm');
+  const statusEl = document.getElementById('formStatus');
+  const submitBtn = document.getElementById('submitBtn');
+  const consent = document.getElementById('consent');
+
+  const nameEl = document.getElementById('name');
+  const emailEl = document.getElementById('email');
+  const companyEl = document.getElementById('company');
+  const budgetEl = document.getElementById('budget');
+  const messageEl = document.getElementById('message');
+  const websiteEl = document.getElementById('website');
+
+  const chips = Array.from(document.querySelectorAll('.chip'));
+  chips.forEach((chip) => {
+    const input = chip.querySelector('input');
+    input.addEventListener('change', () => chip.classList.toggle('on', input.checked));
+  });
+
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function setError(name, bad) {
+    const field = form.querySelector('[data-field="' + name + '"]');
+    if (!field) return;
+    field.classList.toggle('invalid', bad);
+    const input = field.querySelector('input, textarea, select');
+    if (input) input.setAttribute('aria-invalid', bad ? 'true' : 'false');
+  }
+
+  function validate() {
+    const name = nameEl.value.trim();
+    const email = emailEl.value.trim();
+    const message = messageEl.value.trim();
+    const okConsent = consent.checked;
+
+    const checks = {
+      name: name.length >= 2,
+      email: emailRe.test(email),
+      message: message.length >= 20,
+      consent: okConsent
+    };
+
+    Object.keys(checks).forEach((key) => setError(key, !checks[key]));
+    return Object.values(checks).every(Boolean);
+  }
+
+  ['name', 'email', 'message'].forEach((id) => {
+    const input = document.getElementById(id);
+    input.addEventListener('input', () => {
+      const field = input.closest('.field');
+      if (field && field.classList.contains('invalid')) setError(id, false);
+    });
+  });
+  consent.addEventListener('change', () => {
+    if (consent.checked) setError('consent', false);
+  });
+
+  function setStatus(text, kind) {
+    statusEl.textContent = text;
+    statusEl.classList.remove('ok', 'bad');
+    if (kind) statusEl.classList.add(kind);
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setStatus('', null);
+
+    if (!validate()) {
+      setStatus('Check the highlighted fields, then send again.', 'bad');
+      const firstBad = form.querySelector('.field.invalid input, .field.invalid textarea');
+      if (firstBad) firstBad.focus();
+      return;
+    }
+
+    const data = {
+      name: nameEl.value.trim(),
+      email: emailEl.value.trim(),
+      company: companyEl.value.trim(),
+      budget: budgetEl.value,
+      scope: Array.from(form.querySelectorAll('input[name="scope"]:checked')).map((el) => el.value),
+      message: messageEl.value.trim(),
+      website: websiteEl.value
+    };
+
+    submitBtn.disabled = true;
+    const original = submitBtn.querySelector('span').textContent;
+    submitBtn.querySelector('span').textContent = 'Sending';
+    setStatus('Sending the brief…', null);
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const payload = await res.json().catch(() => ({}));
+
+      if (!res.ok || !payload.ok) {
+        throw new Error(payload.error || 'Something went wrong on our side.');
+      }
+
+      form.reset();
+      chips.forEach((chip) => chip.classList.remove('on'));
+      setStatus('Brief received. You will get a reply within 48h — usually sooner.', 'ok');
+    } catch (err) {
+      setStatus(err.message || 'Could not send the brief. Email hello@nova.studio instead.', 'bad');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.querySelector('span').textContent = original;
+    }
+  });
+})();
+</script>
+</body>
+</html>

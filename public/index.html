@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOVA — Realtime Motion Studio</title>
+<meta name="description" content="NOVA is a two-person motion lab building realtime interfaces, shader work and sound design for the web.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070c'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2300ffc3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/base.css">
+<style>
+  .manifesto-grid{display:grid;grid-template-columns:220px 1fr;gap:clamp(30px,6vw,80px);align-items:start;margin-top:52px}
+  .manifesto h2{font-size:clamp(1.9rem,4.4vw,4rem);line-height:1.08;letter-spacing:-.03em;font-weight:600;max-width:22ch}
+  .manifesto h2 .hl{background:linear-gradient(100deg,var(--teal),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .manifesto p{margin-top:26px;max-width:62ch;color:var(--muted);font-size:clamp(1rem,1.25vw,1.1rem);line-height:1.75}
+  .manifesto .meta{margin-top:0;display:flex;flex-direction:column;gap:14px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(139,155,152,.75)}
+  .manifesto .meta b{color:var(--ink);font-weight:400}
+  .work-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-top:52px;flex-wrap:wrap}
+  .work-head h2{font-size:clamp(1.8rem,4vw,3.1rem);letter-spacing:-.03em;font-weight:600;line-height:1.02}
+  .work-head .hint{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);padding-bottom:10px}
+  .home-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+  .home-cards .card{display:block}
+  .home-cards .card:hover .art-mark{transform:scale(1.06)}
+  .home-cards .art-mark{transition:transform .5s var(--ease)}
+  .home-foot{margin-top:40px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .home-foot p{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(139,155,152,.7)}
+  @media (max-width:1000px){
+    .manifesto-grid{grid-template-columns:1fr;gap:28px}
+    .home-cards{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body class="page-home">
+
+<div id="preloader">
+  <div class="pre-inner">
+    <div class="pre-top"><span>nova / boot</span><span id="loadPct" class="pre-pct">000</span></div>
+    <div class="pre-bar"><i id="loadBar"></i></div>
+    <div class="pre-lines">
+      <span>&gt; compiling shaders</span>
+      <span>&gt; wiring audio bus</span>
+      <span>&gt; calibrating particles</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="cursor"><div class="cursor-dot"></div><div class="cursor-ring"></div></div>
+<div class="progress"><i id="bar"></i></div>
+<div class="page-transition"></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="/"><i></i>NOVA</a>
+  <nav class="nav-links">
+    <a href="/work" data-page="work">Work</a>
+    <a href="/studio" data-page="studio">Studio</a>
+    <a href="/contact" data-page="contact">Contact</a>
+    <button id="soundToggle" class="sound-btn" aria-pressed="false">Sound off</button>
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<nav class="drawer" id="drawer" aria-label="Mobile">
+  <a href="/" data-page="home">Home</a>
+  <a href="/work" data-page="work">Work</a>
+  <a href="/studio" data-page="studio">Studio</a>
+  <a href="/contact" data-page="contact">Contact</a>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="orb a"></div>
+    <div class="orb b"></div>
+
+    <div class="hero-inner">
+      <div class="eyebrow fade" style="transition-delay:.05s">Realtime studio — est. 2017</div>
+      <h1 class="hero-title">
+        <span class="line">Digital</span>
+        <span class="line outline">Gravity</span>
+      </h1>
+      <p class="hero-copy fade" style="transition-delay:.55s">
+        We build interfaces that feel physical. Shader work, sound design and motion systems
+        tuned frame by frame until a screen has weight.
+      </p>
+      <div class="hero-actions fade" style="transition-delay:.7s">
+        <a class="btn primary magnet" href="/work"><span>Enter the work</span><span class="arrow">↗</span></a>
+        <a class="btn magnet" href="/contact"><span>Start a project</span><span class="arrow">↗</span></a>
+      </div>
+    </div>
+
+    <div class="cue fade" style="transition-delay:.9s"><i></i>scroll to render</div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Realtime ✦ Shaders ✦ Sound ✦ Motion ✦ Light ✦ Code ✦ </span>
+      <span>Realtime ✦ Shaders ✦ Sound ✦ Motion ✦ Light ✦ Code ✦ </span>
+    </div>
+  </div>
+
+  <section class="section manifesto">
+    <div class="label reveal">01 — Manifesto</div>
+    <div class="manifesto-grid">
+      <div class="reveal">
+        <p class="meta">
+          <span><b>Two</b> humans</span>
+          <span><b>One</b> GPU</span>
+          <span><b>Zero</b> templates</span>
+        </p>
+      </div>
+      <div>
+        <h2 class="reveal">A screen is a <span class="hl">stage</span>. Pixels are <span class="hl">performers</span>. Motion is the <span class="hl">script</span>.</h2>
+        <p class="reveal">
+          NOVA is a small motion lab. We prototype in shaders, mix in the browser, and ship sites
+          that hum. Every curve is tuned by hand, every transition has a reason, every frame is
+          paid for in milliseconds.
+        </p>
+        <p class="reveal">
+          No stock sections. No borrowed easing. If it does not move like it weighs something,
+          it does not leave the room.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="label reveal">02 — Selected work</div>
+    <div class="work-head">
+      <h2 class="reveal">Built to be felt,<br>not just viewed.</h2>
+      <div class="hint reveal">Three of forty-eight</div>
+    </div>
+
+    <div class="home-cards stagger">
+      <a class="card" href="/work" data-tilt>
+        <div class="art" style="--c1:#00ffc3;--c2:#7b5cff"><span class="art-mark">01</span></div>
+        <div class="body">
+          <h3>AURORA <em>2026</em></h3>
+          <p>Realtime WebGL identity for a generative audio label. The logo dissolves into the spectrum.</p>
+          <div class="tags"><span class="tag">WebGL</span><span class="tag">GLSL</span><span class="tag">Identity</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="/work" data-tilt>
+        <div class="art" style="--c1:#ff3d81;--c2:#ff9a3d"><span class="art-mark">02</span></div>
+        <div class="body">
+          <h3>PULSE <em>2025</em></h3>
+          <p>Audio-reactive launch page. Sixty frames per second, zero video files, one waveform.</p>
+          <div class="tags"><span class="tag">Web Audio</span><span class="tag">Canvas</span><span class="tag">Launch</span></div>
+        </div>
+      </a>
+
+      <a class="card" href="/work" data-tilt>
+        <div class="art" style="--c1:#7b5cff;--c2:#00ffc3"><span class="art-mark">03</span></div>
+        <div class="body">
+          <h3>VANTA <em>2025</em></h3>
+          <p>Kinetic editorial system for a design journal. Type that behaves like weather.</p>
+          <div class="tags"><span class="tag">Motion</span><span class="tag">Type</span><span class="tag">CMS</span></div>
+        </div>
+      </a>
+    </div>
+
+    <div class="home-foot reveal">
+      <p>48 projects shipped since 2017</p>
+      <a class="btn small" href="/work"><span>All work</span><span class="arrow">↗</span></a>
+    </div>
+  </section>
+
+  <section class="stats-section">
+    <div class="stats">
+      <div class="stat reveal"><b><span data-count="48">0</span></b><span>Experiences shipped</span></div>
+      <div class="stat reveal"><b><span data-count="12">0</span></b><span>Industry awards</span></div>
+      <div class="stat reveal"><b><span data-count="60">0</span></b><span>FPS floor</span></div>
+      <div class="stat reveal"><b><span data-count="9">0</span></b><span>Years in the dark</span></div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Sony Music ✦ A24 ✦ Figma ✦ Vercel ✦ Off-White ✦ MoMA ✦ Arc ✦ Nike ✦ </span>
+      <span>Sony Music ✦ A24 ✦ Figma ✦ Vercel ✦ Off-White ✦ MoMA ✦ Arc ✦ Nike ✦ </span>
+    </div>
+  </div>
+
+  <section class="cta">
+    <div class="label reveal">03 — Contact</div>
+    <h2 class="reveal">Let's make<br><span class="outline">something</span><br>loud.</h2>
+    <div class="row reveal">
+      <a class="btn primary magnet" href="/contact"><span>Start a project</span><span class="arrow">↗</span></a>
+      <a class="btn magnet" href="mailto:hello@nova.studio"><span>hello@nova.studio</span><span class="arrow">↗</span></a>
+    </div>
+    <div class="note reveal">Replies within 48h — usually faster</div>
+  </section>
+</main>
+
+<footer>
+  <span>© <span data-year>2026</span> NOVA Studio</span>
+  <span>Built with shaders &amp; cold coffee</span>
+  <span class="foot-links"><a href="/work">Work</a><a href="/studio">Studio</a><a href="/contact">Contact</a></span>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+</body>
+</html>

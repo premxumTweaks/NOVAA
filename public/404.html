@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — NOVA</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070c'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2300ffc3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/base.css">
+<style>
+  .notfound{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:calc(var(--nav-h) + 60px) var(--pad) 90px}
+  .notfound h1{font-size:clamp(5rem,22vw,18rem);line-height:.8;letter-spacing:-.06em;font-weight:700;color:transparent;-webkit-text-stroke:1px rgba(234,242,239,.5)}
+  .notfound h2{margin-top:28px;font-size:clamp(1.4rem,3vw,2.2rem);letter-spacing:-.02em;font-weight:600}
+  .notfound p{margin-top:16px;max-width:52ch;color:var(--muted);line-height:1.75}
+  .notfound .row{margin-top:34px;display:flex;flex-wrap:wrap;gap:14px}
+</style>
+</head>
+<body class="page-404">
+
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="cursor"><div class="cursor-dot"></div><div class="cursor-ring"></div></div>
+<div class="progress"><i id="bar"></i></div>
+<div class="page-transition"></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="/"><i></i>NOVA</a>
+  <nav class="nav-links">
+    <a href="/work" data-page="work">Work</a>
+    <a href="/studio" data-page="studio">Studio</a>
+    <a href="/contact" data-page="contact">Contact</a>
+    <button id="soundToggle" class="sound-btn" aria-pressed="false">Sound off</button>
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<nav class="drawer" id="drawer" aria-label="Mobile">
+  <a href="/" data-page="home">Home</a>
+  <a href="/work" data-page="work">Work</a>
+  <a href="/studio" data-page="studio">Studio</a>
+  <a href="/contact" data-page="contact">Contact</a>
+</nav>
+
+<main class="notfound">
+  <div class="wrap">
+    <h1>404</h1>
+    <h2>This frame does not exist.</h2>
+    <p>Wrong link, deleted page, or a route we never shipped. The rest of the build is still standing.</p>
+    <div class="row">
+      <a class="btn primary magnet" href="/"><span>Back home</span><span class="arrow">↗</span></a>
+      <a class="btn magnet" href="/work"><span>See the work</span><span class="arrow">↗</span></a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>© <span data-year>2026</span> NOVA Studio</span>
+  <span>Built with shaders &amp; cold coffee</span>
+  <span class="foot-links"><a href="/work">Work</a><a href="/studio">Studio</a><a href="/contact">Contact</a></span>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+</body>
+</html>

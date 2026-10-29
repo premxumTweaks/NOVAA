@@ -1,0 +1,490 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Work â€” NOVA</title>
+<meta name="description" content="Selected work from NOVA: realtime interfaces, shader identities, motion systems and sound-driven launches.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070c'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2300ffc3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/base.css">
+<style>
+  .work-toolbar{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .work-count{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding-bottom:12px}
+  .work-count b{color:var(--teal);font-weight:400}
+  .work-grid .project:nth-child(3n+1) .art{height:300px}
+  .project .body h3{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:clamp(1.15rem,1.8vw,1.45rem);letter-spacing:.01em;font-weight:600}
+  .project .body h3 em{font-family:var(--mono);font-style:normal;font-size:10px;letter-spacing:.2em;color:var(--muted);font-weight:400}
+  .project .body p{margin-top:12px;color:var(--muted);font-size:.95rem;line-height:1.68;max-width:52ch}
+  .archive-note{
+    display:flex;justify-content:space-between;align-items:center;gap:22px;flex-wrap:wrap;
+    margin-top:34px;padding:26px 28px;border:1px solid var(--line);border-radius:18px;
+    background:rgba(255,255,255,.015)
+  }
+  .archive-note p{color:var(--muted);font-size:.95rem;line-height:1.7;max-width:58ch}
+  .archive-note p b{color:var(--ink);font-weight:500}
+  .modal-body h4{margin-top:26px;font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+  .modal-body ul{margin-top:14px;list-style:none;display:grid;gap:10px}
+  .modal-body li{color:var(--muted);line-height:1.65;font-size:.95rem;padding-left:18px;position:relative}
+  .modal-body li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;border-radius:50%;background:var(--teal);opacity:.7}
+</style>
+</head>
+<body class="page-work">
+
+<div id="preloader">
+  <div class="pre-inner">
+    <div class="pre-top"><span>nova / archive</span><span id="loadPct" class="pre-pct">000</span></div>
+    <div class="pre-bar"><i id="loadBar"></i></div>
+    <div class="pre-lines">
+      <span>&gt; indexing 48 builds</span>
+      <span>&gt; loading frame timing</span>
+      <span>&gt; restoring case notes</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="cursor"><div class="cursor-dot"></div><div class="cursor-ring"></div></div>
+<div class="progress"><i id="bar"></i></div>
+<div class="page-transition"></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="/"><i></i>NOVA</a>
+  <nav class="nav-links">
+    <a href="/work" data-page="work">Work</a>
+    <a href="/studio" data-page="studio">Studio</a>
+    <a href="/contact" data-page="contact">Contact</a>
+    <button id="soundToggle" class="sound-btn" aria-pressed="false">Sound off</button>
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<nav class="drawer" id="drawer" aria-label="Mobile">
+  <a href="/" data-page="home">Home</a>
+  <a href="/work" data-page="work">Work</a>
+  <a href="/studio" data-page="studio">Studio</a>
+  <a href="/contact" data-page="contact">Contact</a>
+</nav>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <div class="eyebrow fade">Archive â€” 2023 / 2026</div>
+      <h1 class="page-title fade" style="transition-delay:.1s">Selected<br><span class="outline">Work</span></h1>
+      <p class="page-lede fade" style="transition-delay:.25s">
+        Nine builds out of forty-eight. Each one shipped with its own shader, its own timing curve,
+        and a reason to exist. Open a case to see the constraint we were given and what came out the
+        other side.
+      </p>
+      <div class="page-meta fade" style="transition-delay:.35s">
+        <span><b>48</b> shipped</span>
+        <span><b>12</b> awards</span>
+        <span><b>9</b> years</span>
+        <span><b>60</b> fps floor</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight" style="padding-top:0">
+    <div class="work-toolbar">
+      <div class="filters reveal" id="filters" role="group" aria-label="Filter work">
+        <button class="filter on" data-filter="all">All work</button>
+        <button class="filter" data-filter="realtime">Realtime</button>
+        <button class="filter" data-filter="identity">Identity</button>
+        <button class="filter" data-filter="motion">Motion</button>
+        <button class="filter" data-filter="sound">Sound</button>
+        <button class="filter" data-filter="product">Product</button>
+      </div>
+      <div class="work-count reveal">Showing <b id="visibleCount">9</b> / 9</div>
+    </div>
+
+    <div class="work-grid" id="workGrid">
+
+      <button class="project reveal" data-cat="realtime identity" data-title="AURORA" data-project-year="2026">
+        <div class="art" style="--c1:#00ffc3;--c2:#7b5cff"><span class="art-mark">01</span></div>
+        <div class="body">
+          <h3>AURORA <em>2026</em></h3>
+          <p>Realtime WebGL identity for a generative audio label. The logo dissolves into the spectrum.</p>
+          <div class="tags"><span class="tag">WebGL</span><span class="tag">GLSL</span><span class="tag">Identity</span></div>
+          <span class="open-hint">Read case study â†—</span>
+        </div>
+        <template class="case">
+          <p>Halcyon Records needed a mark that could survive being printed on a vinyl sleeve and still move like audio on a screen. We built the identity around a single fragment shader: the logo is a signed distance field, and every release feeds it a different frequency band.</p>
+          <p>The whole system runs in the browser at 60fps on a 2019 laptop. No video, no baked frames, one shader and a JSON file per release.</p>
+          <h4>What we did</h4>
+          <ul>
+            <li>Shader-driven logotype with six release variants</li>
+            <li>Real-time spectrum input from the label's catalogue</li>
+            <li>Print-safe fallback grid generated from the same SDF</li>
+          </ul>
+          <div class="modal-meta">
+            <div><span>Client</span><b>Halcyon Records</b></div>
+            <div><span>Role</span><b>Design, shader, build</b></div>
+            <div><span>Stack</span><b>WebGL, GLSL, Vite</b></div>
+            <div><span>Result</span><b>+212% avg. session</b></div>
+          </div>
+        </template>
+      </button>
+
+      <button class="project reveal" data-cat="realtime sound" data-title="PULSE" data-project-year="2025">
+        <div class="art" style="--c1:#ff3d81;--c2:#ff9a3d"><span class="art-mark">02</span></div>
+        <div class="body">
+          <h3>PULSE <em>2025</em></h3>
+          <p>Audio-reactive launch page. Sixty frames per second, zero video files, one waveform.</p>
+          <div class="tags"><span class="tag">Web Audio</span><span class="tag">Canvas</span><span class="tag">Launch</span></div>
+          <span class="open-hint">Read case study â†—</span>
+        </div>
+        <template class="case">
+          <p>Arc wanted a launch page that reacted to the product's own sound design. We sampled the intro cue, ran it through an FFT, and mapped the low band to scale, the mid band to colour, and the high band to particle density.</p>
+          <p>The page weighs 38KB total and never loads a media file. Visitors can play the cue, scrub it, or mute it â€” the visuals fall back to a calm idle loop when sound is off.</p>
+          <h4>What we did</h4>
+          <ul>
+            <li>Canvas audio visualiser with FFT band mapping</li>
+            <li>Idle state that reads well with sound disabled</li>
+            <li>Reduced-motion path with static keyframe art</li>
+          </ul>
+          <div class="modal-meta">
+            <div><span>Client</span><b>Arc</b></div>
+            <div><span>Role</span><b>Creative dev</b></div>
+            <div><span>Stack</span><b>Web Audio, Canvas 2D</b></div>
+            <div><span>Result</span><b>38KB page weight</b></div>
+          </div>
+        </template>
+      </button>
+
+      <button class="project reveal" data-cat="motion identity" data-title="VANTA" data-project-year="2025">
+        <div class="art" style="--c1:#7b5cff;--c2:#00ffc3"><span class="art-mark">03</span></div>
+        <div class="body">
+          <h3>VANTA <em>2025</em></h3>
+          <p>Kinetic editorial system for a design journal. Type that behaves like weather.</p>
+          <div class="tags"><span class="tag">Motion</span><span class="tag">Type</span><span class="tag">CMS</span></div>
+          <span class="open-hint">Read case study â†—</span>
+        </div>
+        <template class="case">
+          <p>VANTA publishes long-form criticism and wanted the reading experience to carry the same weight as the print issue. We built a type system where headline weight, tracking and leading are driven by the article's own word count and reading time.</p>
+          <p>Every article gets a different typographic weather. Editors pick a mood in the CMS; the renderer does the rest, and no two pieces look the same.</p>
+          <h4>What we did</h4>
+          <ul>
+            <li>Rules-based kinetic type scale</li>
+            <li>CMS mood presets with live preview</li>
+            <li>Print export from the same type tokens</li>
+          </ul>
+          <div class="modal-meta">
+            <div><span>Client</span><b>VANTA Journal</b></div>
+            <div><span>Role</span><b>Design system, build</b></div>
+            <div><span>Stack</span><b>TypeScript, CSS vars</b></div>
+            <div><span>Result</span><b>2.4Ã— read-through</b></div>
+          </div>
+        </template>
+      </button>
+
+      <button class="project reveal" data-cat="product realtime" data-title="HELIX" data-project-year="2025">
+        <div class="art" style="--c1:#00ffc3;--c2:#ff3d81"><span class="art-mark">04</span></div>
+        <div class="body">
+          <h3>HELIX <em>2025</em></h3>
+          <p>Deploy dashboard with a live system map. Infrastructure you can read at a glance.</p>
+          <div class="tags"><span class="tag">Product</span><span class="tag">Data viz</span><span class="tag">React</span></div>
+          <span class="open-hint">Read case study â†—</span>
+        </div>
+        <template class="case">
+          <p>Vercel's internal teams were reading deploys through log tails and tables. HELIX replaces that with a live topology view: every service, edge region and dependency rendered as a node with real state.</p>
+          <p>The layout is computed with a force simulation that runs off the main thread, so the map stays interactive while hundreds of events stream in.</p>
+          <h4>What we did</h4>
+          <ul>
+            <li>Force-directed topology with stable pinning</li>
+            <li>Web Worker event bus, 300+ nodes</li>
+            <li>Keyboard-first navigation and screen reader labels</li>
+          </ul>
+          <div class="modal-meta">
+            <div><span>Client</span><b>Vercel</b></div>
+            <div><span>Role</span><b>Product design, front-end</b></div>
+            <div><span>Stack</span><b>React, D3, Workers</b></div>
+            <div><span>Result</span><b>âˆ’41% time to diagnose</b></div>
+          </div>
+        </template>
+      </button>
+
+      <button class="project reveal" data-cat="motion sound" data-title="NOCTURNE" data-project-year="2024">
+        <div class="art" style="--c1:#ff3d81;--c2:#7b5cff"><span class="art-mark">05</span></div>
+        <div class="body">
+          <h3>NOCTURNE <em>2024</em></h3>
+          <p>Film campaign site where scroll position is the timeline. Sound follows the cut.</p>
+          <div class="tags"><span class="tag">Motion</span><span class="tag">Sound</span><span class="tag">Campaign</span></div>
+          <span class="open-hint">Read case study â†—</span>
+        </div>
+        <template class="case">
+          <p>A24 needed a campaign page that felt like a trailer without autoplaying video. We mapped scroll to a fixed timeline: each beat of the film triggers a type cut, a colour shift, and a layered sound cue that crossfades with the position.</p>
+          <p>Sound is opt-in. Without it, the page still lands every beat through type and motion alone.</p>
+          <h4>What we did</h4>
+          <ul>
+            <li>Scroll-driven timeline engine with snap beats</li>
+            <li>Layered Web Audio cues, crossfaded by position</li>
+            <li>Silent fallback that keeps the rhythm</li>
+          </ul>
+          <div class="modal-meta">
+            <div><span>Client</span><b>A24</b></div>
+            <div><span>Role</span><b>Creative dev, sound design</b></div>
+            <div><span>Stack</span><b>GSAP, Web Audio</b></div>
+            <div><span>Result</span><b>4.1 min avg. dwell</b></div>
+          </div>
+        </template>
+      </button>
+
+      <button class="project reveal" data-cat="product" data-title="ATLAS" data-project-year="2024">
+        <div class="art" style="--c1:#eaf2ef;--c2:#00ffc3"><span class="art-mark">06</span></div>
+        <div class="body">
+          <h3>ATLAS <em>2024</em></h3>
+          <p>Design-system documentation that behaves like the product it documents.</p>
+          <div class="tags"><span class="tag">Product</span><span class="tag">Docs</span><span class="tag">System</span></div>
+          <span class="open-hint">Read case study â†—</span>
+        </div>
+        <template class="case">
+          <p>Figma's component docs were accurate and lifeless. ATLAS turns every token into a live specimen: change a radius, see it propagate across the page in real time, then copy the diff.</p>
+          <p>The docs are generated from the same source as the library, so a token can never drift from its documentation.</p>
+          <h4>What we did</h4>
+          <ul>
+            <li>Token playground with live propagation</li>
+            <li>Generated docs from the component source</li>
+            <li>Copy-as-code for every specimen</li>
+          </ul>
+          <div class="modal-meta">
+            <div><span>Client</span><b>Figma</b></div>
+            <div><span>Role</span><b>Design system, docs</b></div>
+            <div><span>Stack</span><b>MDX, React, Tokens</b></div>
+            <div><span>Result</span><b>âˆ’63% support tickets</b></div>
+          </div>
+        </template>
+      </button>
+
+      <button class="project reveal" data-cat="sound realtime" data-title="ECHO" data-project-year="2024">
+        <div class="art" style="--c1:#7b5cff;--c2:#ff3d81"><span class="art-mark">07</span></div>
+        <div class="body">
+          <h3>ECHO <em>2024</em></h3>
+          <p>Generative listening room. Every visitor hears a different version of the same piece.</p>
+          <div class="tags"><span class="tag">Web Audio</span><span class="tag">Generative</span><span class="tag">Installation</span></div>
+          <span class="open-hint">Read case study â†—</span>
+        </div>
+        <template class="case">
+          <p>MoMA's digital programme needed a piece that could run unattended for six weeks. ECHO composes in the browser from a fixed sample bank, seeded by the visitor's arrival time and pointer path.</p>
+          <p>No server, no storage, no two listens alike. The installation resets itself every morning and never repeats a sequence within a day.</p>
+          <h4>What we did</h4>
+          <ul>
+            <li>Seeded generative composition engine</li>
+            <li>Sample bank under 2MB, streamed on demand</li>
+            <li>Kiosk mode with idle reset</li>
+          </ul>
+          <div class="modal-meta">
+            <div><span>Client</span><b>MoMA Digital</b></div>
+            <div><span>Role</span><b>Concept, build</b></div>
+            <div><span>Stack</span><b>Web Audio, Tone.js</b></div>
+            <div><span>Result</span><b>6-week unattended run</b></div>
+          </div>
+        </template>
+      </button>
+
+      <button class="project reveal" data-cat="identity motion" data-title="MONOLITH" data-project-year="2023">
+        <div class="art" style="--c1:#ff9a3d;--c2:#7b5cff"><span class="art-mark">08</span></div>
+        <div class="body">
+          <h3>MONOLITH <em>2023</em></h3>
+          <p>Retail identity built from one extruded form. Print, screen and storefront.</p>
+          <div class="tags"><span class="tag">Identity</span><span class="tag">3D</span><span class="tag">Retail</span></div>
+          <span class="open-hint">Read case study â†—</span>
+        </div>
+        <template class="case">
+          <p>Off-White wanted a single gesture that could scale from a hangtag to a storefront. MONOLITH is one extruded profile rendered three ways: as a physical sign, as a CSS 3D object, and as a flat print mark.</p>
+          <p>We shipped a small configurator so the retail team could generate any size without touching a 3D suite.</p>
+          <h4>What we did</h4>
+          <ul>
+            <li>Single-form identity across print and screen</li>
+            <li>CSS 3D storefront renderer</li>
+            <li>Size configurator for retail production</li>
+          </ul>
+          <div class="modal-meta">
+            <div><span>Client</span><b>Off-White</b></div>
+            <div><span>Role</span><b>Identity, 3D, build</b></div>
+            <div><span>Stack</span><b>Three.js, CSS 3D</b></div>
+            <div><span>Result</span><b>14 markets rolled out</b></div>
+          </div>
+        </template>
+      </button>
+
+      <button class="project reveal" data-cat="product realtime" data-title="ORBIT" data-project-year="2023">
+        <div class="art" style="--c1:#00ffc3;--c2:#eaf2ef"><span class="art-mark">09</span></div>
+        <div class="body">
+          <h3>ORBIT <em>2023</em></h3>
+          <p>Training companion that turns a run into a physical object on screen.</p>
+          <div class="tags"><span class="tag">Product</span><span class="tag">Realtime</span><span class="tag">Mobile web</span></div>
+          <span class="open-hint">Read case study â†—</span>
+        </div>
+        <template class="case">
+          <p>Nike Run Club wanted a session recap that felt earned. ORBIT turns pace, elevation and cadence into a single rotating form that keeps the runner's rhythm after the run ends.</p>
+          <p>It runs on mid-range Android at 60fps, degrades to a static poster on low-power mode, and exports a share card in one tap.</p>
+          <h4>What we did</h4>
+          <ul>
+            <li>Run-data to geometry mapping</li>
+            <li>60fps on mid-range Android</li>
+            <li>One-tap share card export</li>
+          </ul>
+          <div class="modal-meta">
+            <div><span>Client</span><b>Nike Run Club</b></div>
+            <div><span>Role</span><b>Product design, build</b></div>
+            <div><span>Stack</span><b>WebGL, Canvas, PWA</b></div>
+            <div><span>Result</span><b>+34% shared recaps</b></div>
+          </div>
+        </template>
+      </button>
+
+    </div>
+
+    <div class="archive-note reveal">
+      <p><b>The other thirty-nine live in the archive.</b> Campaign stings, internal tools, a few things under NDA. Ask and we will walk you through the relevant ones.</p>
+      <a class="btn small" href="/contact"><span>Request the archive</span><span class="arrow">â†—</span></a>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Strategy âœ¦ Design âœ¦ Shaders âœ¦ Sound âœ¦ Motion âœ¦ Front-end âœ¦ </span>
+      <span>Strategy âœ¦ Design âœ¦ Shaders âœ¦ Sound âœ¦ Motion âœ¦ Front-end âœ¦ </span>
+    </div>
+  </div>
+
+  <section class="cta">
+    <div class="label reveal">Next</div>
+    <h2 class="reveal">Your build<br><span class="outline">is next.</span></h2>
+    <div class="row reveal">
+      <a class="btn primary magnet" href="/contact"><span>Start a project</span><span class="arrow">â†—</span></a>
+      <a class="btn magnet" href="/studio"><span>Meet the studio</span><span class="arrow">â†—</span></a>
+    </div>
+    <div class="note reveal">Two slots open for Q1 2027</div>
+  </section>
+</main>
+
+<div class="modal" id="caseModal" role="dialog" aria-modal="true" aria-labelledby="caseTitle" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h3 id="caseTitle">Project</h3>
+        <em id="caseYear">2026</em>
+      </div>
+      <button class="modal-close" data-close aria-label="Close case study">âœ•</button>
+    </div>
+    <div class="modal-body" id="caseBody"></div>
+  </div>
+</div>
+
+<footer>
+  <span>Â© <span data-year>2026</span> NOVA Studio</span>
+  <span>Built with shaders &amp; cold coffee</span>
+  <span class="foot-links"><a href="/work">Work</a><a href="/studio">Studio</a><a href="/contact">Contact</a></span>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+<script>
+(() => {
+  'use strict';
+
+  const grid = document.getElementById('workGrid');
+  const filters = document.getElementById('filters');
+  const visibleCount = document.getElementById('visibleCount');
+  const projects = Array.from(grid.querySelectorAll('.project'));
+
+  /* filtering */
+  filters.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter');
+    if (!btn) return;
+
+    filters.querySelectorAll('.filter').forEach((b) => b.classList.toggle('on', b === btn));
+    const key = btn.dataset.filter;
+
+    let shown = 0;
+    projects.forEach((project) => {
+      const cats = (project.dataset.cat || '').split(/\s+/);
+      const match = key === 'all' || cats.includes(key);
+      project.hidden = !match;
+      if (match) {
+        shown++;
+        if (!project.classList.contains('in')) project.classList.add('in');
+      }
+    });
+
+    visibleCount.textContent = String(shown);
+  });
+
+  /* case modal */
+  const modal = document.getElementById('caseModal');
+  const titleEl = document.getElementById('caseTitle');
+  const yearEl = document.getElementById('caseYear');
+  const bodyEl = document.getElementById('caseBody');
+  let lastFocus = null;
+  let lockY = 0;
+
+  function openCase(project) {
+    const tpl = project.querySelector('template.case');
+    if (!tpl) return;
+
+    lastFocus = document.activeElement;
+    titleEl.textContent = project.dataset.title || 'Project';
+    yearEl.textContent = project.dataset.projectYear || '';
+    bodyEl.innerHTML = '';
+    bodyEl.appendChild(tpl.content.cloneNode(true));
+
+    lockY = window.scrollY;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = -lockY + 'px';
+    document.body.style.width = '100%';
+
+    const closeBtn = modal.querySelector('.modal-close');
+    if (closeBtn) closeBtn.focus();
+  }
+
+  function closeCase() {
+    if (modal.hidden) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, lockY);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  projects.forEach((project) => {
+    project.addEventListener('click', () => openCase(project));
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target.closest('[data-close]')) closeCase();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeCase();
+
+    if (e.key === 'Tab' && !modal.hidden) {
+      const focusables = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  });
+})();
+</script>
+</body>
+</html>

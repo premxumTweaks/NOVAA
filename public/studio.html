@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio — NOVA</title>
+<meta name="description" content="NOVA is a two-person motion lab: realtime interfaces, identity systems, sound design and front-end engineering.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070c'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2300ffc3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/base.css">
+<style>
+  .studio-statement{margin-top:52px;display:grid;grid-template-columns:220px 1fr;gap:clamp(30px,6vw,80px);align-items:start}
+  .studio-statement h2{font-size:clamp(1.9rem,4.4vw,3.8rem);line-height:1.06;letter-spacing:-.03em;font-weight:600;max-width:24ch}
+  .studio-statement h2 .hl{background:linear-gradient(100deg,var(--teal),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .studio-statement p{margin-top:24px;max-width:64ch;color:var(--muted);font-size:clamp(1rem,1.25vw,1.1rem);line-height:1.78}
+  .studio-statement .meta{display:flex;flex-direction:column;gap:14px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(139,155,152,.75)}
+  .studio-statement .meta b{color:var(--ink);font-weight:400}
+  .network{margin-top:44px;border-top:1px solid var(--line)}
+  .network-row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .network-row b{color:var(--ink);font-weight:400}
+  .awards{margin-top:44px;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  .award{display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap;background:var(--bg);padding:20px 24px}
+  .award h4{font-size:1rem;font-weight:500}
+  .award span{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .award b{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);font-weight:400}
+  @media (max-width:1000px){
+    .studio-statement{grid-template-columns:1fr;gap:28px}
+  }
+</style>
+</head>
+<body class="page-studio">
+
+<div id="preloader">
+  <div class="pre-inner">
+    <div class="pre-top"><span>nova / studio</span><span id="loadPct" class="pre-pct">000</span></div>
+    <div class="pre-bar"><i id="loadBar"></i></div>
+    <div class="pre-lines">
+      <span>&gt; loading team of two</span>
+      <span>&gt; reading process notes</span>
+      <span>&gt; opening the room</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="cursor"><div class="cursor-dot"></div><div class="cursor-ring"></div></div>
+<div class="progress"><i id="bar"></i></div>
+<div class="page-transition"></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="/"><i></i>NOVA</a>
+  <nav class="nav-links">
+    <a href="/work" data-page="work">Work</a>
+    <a href="/studio" data-page="studio">Studio</a>
+    <a href="/contact" data-page="contact">Contact</a>
+    <button id="soundToggle" class="sound-btn" aria-pressed="false">Sound off</button>
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<nav class="drawer" id="drawer" aria-label="Mobile">
+  <a href="/" data-page="home">Home</a>
+  <a href="/work" data-page="work">Work</a>
+  <a href="/studio" data-page="studio">Studio</a>
+  <a href="/contact" data-page="contact">Contact</a>
+</nav>
+
+<main>
+  <section class="page-head">
+    <div class="wrap">
+      <div class="eyebrow fade">The studio — since 2017</div>
+      <h1 class="page-title fade" style="transition-delay:.1s">Two humans.<br><span class="outline">One GPU.</span></h1>
+      <p class="page-lede fade" style="transition-delay:.25s">
+        NOVA is a motion lab, not an agency. We take a handful of builds a year, keep the team small,
+        and do the work ourselves — strategy, design, shaders, sound, front-end. No account layer,
+        no handoff, no telephone game.
+      </p>
+      <div class="page-meta fade" style="transition-delay:.35s">
+        <span><b>Amsterdam</b> / remote</span>
+        <span><b>2</b> core</span>
+        <span><b>4</b> collaborators</span>
+        <span><b>3</b> projects per quarter</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight" style="padding-top:0">
+    <div class="label reveal">01 — Position</div>
+    <div class="studio-statement">
+      <div class="reveal">
+        <p class="meta">
+          <span><b>Selected</b> clients</span>
+          <span><b>Own</b> the craft</span>
+          <span><b>Ship</b> the thing</span>
+        </p>
+      </div>
+      <div>
+        <h2 class="reveal">We take the work that <span class="hl">cannot</span> be templated.</h2>
+        <p class="reveal">
+          Most sites are assembled. Ours are built. That means writing the shader, tuning the easing,
+          mixing the cue, and sitting with a frame until it stops feeling like software. It also means
+          saying no to briefs that only need a theme and a stock hero.
+        </p>
+        <p class="reveal">
+          We work in two-week blocks, share a running build from day one, and keep decisions in the
+          open. You see the same thing we see, at the same time.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="label reveal">02 — People</div>
+    <div class="team-grid">
+      <article class="member reveal">
+        <div class="avatar">IV</div>
+        <h3>Iris Vahn</h3>
+        <div class="role">Founder / Creative Director</div>
+        <p>Sets the visual direction and keeps the work honest. Fifteen years between editorial design and realtime installations, most of it spent arguing with type.</p>
+        <ul>
+          <li>Identity systems</li>
+          <li>Motion direction</li>
+          <li>Art direction</li>
+        </ul>
+      </article>
+
+      <article class="member reveal">
+        <div class="avatar">KM</div>
+        <h3>Kade Moreau</h3>
+        <div class="role">Technical Director</div>
+        <p>Writes the shaders and the glue. Comes from game engines, stayed for the browser. Owns frame budget, accessibility and the last ten percent nobody wants to do.</p>
+        <ul>
+          <li>WebGL / GLSL</li>
+          <li>Front-end systems</li>
+          <li>Performance</li>
+        </ul>
+      </article>
+
+      <article class="member reveal">
+        <div class="avatar">+</div>
+        <h3>The network</h3>
+        <div class="role">Four regular collaborators</div>
+        <p>Sound design, 3D, copy and motion assist, brought in when the build needs them. Same people for years, briefed before the first sketch.</p>
+        <ul>
+          <li>Sound design</li>
+          <li>3D / CGI</li>
+          <li>Copywriting</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="network reveal">
+      <div class="network-row"><span>Sound design</span><b>Nour Haddad</b></div>
+      <div class="network-row"><span>3D / CGI</span><b>Piet Alders</b></div>
+      <div class="network-row"><span>Copy</span><b>Mara Okafor</b></div>
+      <div class="network-row"><span>Motion assist</span><b>Jonas Wiel</b></div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="label reveal">03 — Capabilities</div>
+    <div class="cap-grid">
+      <article class="cap reveal">
+        <span>01</span>
+        <h3>Realtime &amp; shaders</h3>
+        <p>WebGL and WebGPU work that runs on the device it ships to. Noise fields, SDF type, particle systems, audio-reactive surfaces, all budgeted to a frame.</p>
+        <ul class="tags"><li class="tag">WebGL</li><li class="tag">GLSL</li><li class="tag">WebGPU</li><li class="tag">Canvas</li></ul>
+      </article>
+
+      <article class="cap reveal">
+        <span>02</span>
+        <h3>Identity systems</h3>
+        <p>Marks that survive print, screen and motion. We build the rules once and generate the variants, so the brand holds up when it leaves our hands.</p>
+        <ul class="tags"><li class="tag">Naming</li><li class="tag">Logotype</li><li class="tag">Type</li><li class="tag">Guidelines</li></ul>
+      </article>
+
+      <article class="cap reveal">
+        <span>03</span>
+        <h3>Sound design</h3>
+        <p>Cues, beds and transitions composed for the browser. Opt-in by default, mixed for laptop speakers, and always with a silent path that keeps the page intact.</p>
+        <ul class="tags"><li class="tag">Web Audio</li><li class="tag">Composition</li><li class="tag">Mix</li></ul>
+      </article>
+
+      <article class="cap reveal">
+        <span>04</span>
+        <h3>Front-end engineering</h3>
+        <p>Clean markup, real accessibility, no framework tax. We ship maintained code with a build script, a README and a handover call — not a zip and a shrug.</p>
+        <ul class="tags"><li class="tag">TypeScript</li><li class="tag">Accessibility</li><li class="tag">Performance</li><li class="tag">CMS</li></ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="label reveal">04 — Process</div>
+    <div class="timeline">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div>
+          <h3>Probe</h3>
+          <p>One call, then a written brief back to you within 48 hours. We say what we heard, what we would cut, and what we would build. No deck, no discovery invoice.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <div>
+          <h3>Sketch in motion</h3>
+          <p>We prototype the risky part first — the shader, the transition, the data view. If the hard thing does not work, you find out in week one, not week six.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <div>
+          <h3>Build the system</h3>
+          <p>Type, colour and timing become tokens. Pages become compositions of those tokens. Nothing is hardcoded that should be a decision.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">04</div>
+        <div>
+          <h3>Tune frame by frame</h3>
+          <p>The last week is slow on purpose. We profile on real devices, cut draw calls, fix the easing that felt fine on a fast laptop and wrong on a phone.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">05</div>
+        <div>
+          <h3>Ship and hand over</h3>
+          <p>Deploy, monitor, then walk your team through the code. You own the repo from day one. We stay on call for thirty days.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="label reveal">05 — Principles</div>
+    <div class="acc reveal">
+      <div class="acc-item open">
+        <button class="acc-trigger" aria-expanded="true">Performance is a design decision<i></i></button>
+        <div class="acc-panel">
+          <p>A transition that drops frames is a bad transition, however it was specified. We design against a frame budget and cut ideas that cannot hold 60fps on the devices your audience actually uses.</p>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger" aria-expanded="false">Motion has to mean something<i></i></button>
+        <div class="acc-panel">
+          <p>Movement is information. A slide says something arrived; a fade says something changed state. If an animation cannot explain itself in one sentence, it does not ship.</p>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger" aria-expanded="false">Accessible by default, not by patch<i></i></button>
+        <div class="acc-panel">
+          <p>Keyboard paths, reduced-motion variants, contrast and semantics are part of the build from the first commit. They are cheaper to design in than to bolt on.</p>
+        </div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-trigger" aria-expanded="false">Small team, direct line<i></i></button>
+        <div class="acc-panel">
+          <p>The people you meet are the people who build. No account manager relaying decisions, no junior quietly rewriting the idea. You talk to the hands doing the work.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section tight">
+    <div class="label reveal">06 — Recognition</div>
+    <div class="awards">
+      <div class="award reveal"><h4>Awwwards — Site of the Day</h4><span>AURORA</span><b>2026</b></div>
+      <div class="award reveal"><h4>FWA of the Day</h4><span>PULSE</span><b>2025</b></div>
+      <div class="award reveal"><h4>Type Directors Club — Certificate</h4><span>VANTA</span><b>2025</b></div>
+      <div class="award reveal"><h4>Webby — Honoree, Visual Design</h4><span>NOCTURNE</span><b>2024</b></div>
+      <div class="award reveal"><h4>CSS Design Awards — Best Innovation</h4><span>MONOLITH</span><b>2023</b></div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="label reveal">Next</div>
+    <h2 class="reveal">Come build<br><span class="outline">with us.</span></h2>
+    <div class="row reveal">
+      <a class="btn primary magnet" href="/contact"><span>Start a project</span><span class="arrow">↗</span></a>
+      <a class="btn magnet" href="/work"><span>See the work</span><span class="arrow">↗</span></a>
+    </div>
+    <div class="note reveal">Two slots open for Q1 2027</div>
+  </section>
+</main>
+
+<footer>
+  <span>© <span data-year>2026</span> NOVA Studio</span>
+  <span>Built with shaders &amp; cold coffee</span>
+  <span class="foot-links"><a href="/work">Work</a><a href="/studio">Studio</a><a href="/contact">Contact</a></span>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+</body>
+</html>
