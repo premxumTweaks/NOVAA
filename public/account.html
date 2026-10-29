@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account — NOVA</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Your NOVA account.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070c'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2300ffc3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/base.css">
+</head>
+<body class="page-auth">
+
+<div id="preloader">
+  <div class="pre-inner">
+    <div class="pre-top"><span>nova / account</span><span id="loadPct" class="pre-pct">000</span></div>
+    <div class="pre-bar"><i id="loadBar"></i></div>
+    <div class="pre-lines">
+      <span>&gt; reading session</span>
+      <span>&gt; loading profile</span>
+      <span>&gt; checking data volume</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="cursor"><div class="cursor-dot"></div><div class="cursor-ring"></div></div>
+<div class="progress"><i id="bar"></i></div>
+<div class="page-transition"></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="/"><i></i>NOVA</a>
+  <nav class="nav-links">
+    <a href="/work" data-page="work">Work</a>
+    <a href="/studio" data-page="studio">Studio</a>
+    <a href="/contact" data-page="contact">Contact</a>
+    <a href="/login" data-auth data-page="auth">Log in</a>
+    <button id="soundToggle" class="sound-btn" aria-pressed="false">Sound off</button>
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<nav class="drawer" id="drawer" aria-label="Mobile">
+  <a href="/" data-page="home">Home</a>
+  <a href="/work" data-page="work">Work</a>
+  <a href="/studio" data-page="studio">Studio</a>
+  <a href="/contact" data-page="contact">Contact</a>
+  <a href="/login" data-auth data-page="auth">Log in</a>
+</nav>
+
+<main>
+  <section class="auth">
+    <div class="auth-card wide" id="accountCard" hidden>
+      <div class="account-head">
+        <div class="account-avatar" id="accountAvatar">--</div>
+        <div>
+          <h1 class="account-name" id="accountName">Account</h1>
+          <div class="account-email" id="accountEmail"></div>
+        </div>
+      </div>
+
+      <div class="account-grid">
+        <div class="account-stat">
+          <span>Member since</span>
+          <b id="accountCreated">—</b>
+        </div>
+        <div class="account-stat">
+          <span>Account ID</span>
+          <b id="accountId">—</b>
+        </div>
+        <div class="account-stat">
+          <span>Storage</span>
+          <b>SQLite · persistent volume</b>
+        </div>
+      </div>
+
+      <div class="account-actions">
+        <a class="btn primary magnet" href="/"><span>Back to the site</span><span class="arrow">↗</span></a>
+        <button class="btn" id="logoutBtn" type="button"><span>Log out</span><span class="arrow">⏻</span></button>
+      </div>
+
+      <p class="account-note">
+        This account lives in the studio database, not in a third-party service. The session cookie is
+        HTTP-only and expires on its own. Logging out destroys the session server-side, not just the cookie.
+      </p>
+
+      <p class="auth-status" id="accountStatus" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="auth-card" id="loadingCard">
+      <div class="label">Account</div>
+      <p class="auth-sub">Checking your session…</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>© <span data-year>2026</span> NOVA Studio</span>
+  <span>Built with shaders &amp; cold coffee</span>
+  <span class="foot-links"><a href="/work">Work</a><a href="/studio">Studio</a><a href="/contact">Contact</a></span>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+<script>
+(() => {
+  'use strict';
+
+  const card = document.getElementById('accountCard');
+  const loadingCard = document.getElementById('loadingCard');
+  const avatarEl = document.getElementById('accountAvatar');
+  const nameEl = document.getElementById('accountName');
+  const emailEl = document.getElementById('accountEmail');
+  const createdEl = document.getElementById('accountCreated');
+  const idEl = document.getElementById('accountId');
+  const statusEl = document.getElementById('accountStatus');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  function initials(user) {
+    const source = (user.name || user.email || '?').trim();
+    const parts = source.split(/[\s@._-]+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return source.slice(0, 2).toUpperCase();
+  }
+
+  function formatDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Unknown';
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  fetch('/api/auth/me', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data || !data.user) {
+        window.location.replace('/login');
+        return;
+      }
+
+      const user = data.user;
+      avatarEl.textContent = initials(user);
+      nameEl.textContent = user.name || 'NOVA member';
+      emailEl.textContent = user.email;
+      createdEl.textContent = formatDate(user.createdAt);
+      idEl.textContent = '#' + String(user.id).padStart(4, '0');
+
+      loadingCard.hidden = true;
+      card.hidden = false;
+    })
+    .catch(() => {
+      loadingCard.innerHTML = '<div class="label">Account</div><p class="auth-sub">Could not reach the server. <a href="/login">Try signing in again</a>.</p>';
+    });
+
+  logoutBtn.addEventListener('click', async () => {
+    logoutBtn.disabled = true;
+    statusEl.textContent = 'Closing session…';
+    statusEl.classList.remove('ok', 'bad');
+
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' }
+      });
+      window.location.replace('/');
+    } catch (err) {
+      statusEl.textContent = 'Could not log out. Try again.';
+      statusEl.classList.add('bad');
+      logoutBtn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

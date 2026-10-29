@@ -736,6 +736,21 @@
     window.addEventListener('pageshow', () => document.body.classList.remove('leaving'));
   }
 
+  /* ---------------- auth nav ---------------- */
+  const authLinks = qsa('[data-auth]');
+  if (authLinks.length && typeof window.fetch === 'function') {
+    window.fetch('/api/auth/me', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data || !data.user) return;
+        authLinks.forEach((link) => {
+          link.textContent = 'Account';
+          link.setAttribute('href', '/account');
+        });
+      })
+      .catch(() => {});
+  }
+
   /* ---------------- footer year ---------------- */
   qsa('[data-year]').forEach((el) => { el.textContent = String(new Date().getFullYear()); });
 

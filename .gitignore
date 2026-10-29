@@ -11,6 +11,13 @@ lerna-debug.log*
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Runtime data
+data/
+!data/.gitkeep
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+backups/
 pids
 *.pid
 *.seed

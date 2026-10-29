@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Create account — NOVA</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Create a NOVA account.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070c'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2300ffc3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/base.css">
+</head>
+<body class="page-auth">
+
+<div id="preloader">
+  <div class="pre-inner">
+    <div class="pre-top"><span>nova / register</span><span id="loadPct" class="pre-pct">000</span></div>
+    <div class="pre-bar"><i id="loadBar"></i></div>
+    <div class="pre-lines">
+      <span>&gt; creating identity</span>
+      <span>&gt; hashing credentials</span>
+      <span>&gt; writing to /data</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="cursor"><div class="cursor-dot"></div><div class="cursor-ring"></div></div>
+<div class="progress"><i id="bar"></i></div>
+<div class="page-transition"></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="/"><i></i>NOVA</a>
+  <nav class="nav-links">
+    <a href="/work" data-page="work">Work</a>
+    <a href="/studio" data-page="studio">Studio</a>
+    <a href="/contact" data-page="contact">Contact</a>
+    <a href="/login" data-auth data-page="auth">Log in</a>
+    <button id="soundToggle" class="sound-btn" aria-pressed="false">Sound off</button>
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<nav class="drawer" id="drawer" aria-label="Mobile">
+  <a href="/" data-page="home">Home</a>
+  <a href="/work" data-page="work">Work</a>
+  <a href="/studio" data-page="studio">Studio</a>
+  <a href="/contact" data-page="contact">Contact</a>
+  <a href="/login" data-auth data-page="auth">Log in</a>
+</nav>
+
+<main>
+  <section class="auth">
+    <div class="auth-card">
+      <div class="auth-head">
+        <div class="label">Account</div>
+        <h1 class="auth-title">Create<br><span class="outline">account.</span></h1>
+        <p class="auth-sub">One account, one session, stored on the studio's own database. No social login, no third party.</p>
+      </div>
+
+      <form class="form auth-form" id="registerForm" novalidate>
+        <div class="field" data-field="name">
+          <label for="name">Name <span style="opacity:.5">(optional)</span></label>
+          <input id="name" name="name" type="text" autocomplete="name" placeholder="How we should call you">
+          <span class="err"></span>
+        </div>
+
+        <div class="field" data-field="email">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+          <span class="err">Enter a valid email address.</span>
+        </div>
+
+        <div class="field" data-field="password">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" placeholder="At least 10 characters" required>
+          <span class="err">Use at least 10 characters.</span>
+        </div>
+
+        <div class="field" data-field="confirm">
+          <label for="confirm">Confirm password</label>
+          <input id="confirm" name="confirm" type="password" autocomplete="new-password" placeholder="Repeat it" required>
+          <span class="err">The passwords do not match.</span>
+        </div>
+
+        <p class="auth-hint" id="passwordHint">10 characters minimum. Nothing is sent anywhere except this server.</p>
+
+        <button class="btn primary" type="submit" id="submitBtn"><span>Create account</span><span class="arrow">↗</span></button>
+
+        <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="auth-divider">or</div>
+      <p class="auth-alt">Already have an account? <a href="/login">Sign in</a></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>© <span data-year>2026</span> NOVA Studio</span>
+  <span>Built with shaders &amp; cold coffee</span>
+  <span class="foot-links"><a href="/work">Work</a><a href="/studio">Studio</a><a href="/contact">Contact</a></span>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+<script>
+(() => {
+  'use strict';
+
+  const form = document.getElementById('registerForm');
+  const nameEl = document.getElementById('name');
+  const emailEl = document.getElementById('email');
+  const passwordEl = document.getElementById('password');
+  const confirmEl = document.getElementById('confirm');
+  const hintEl = document.getElementById('passwordHint');
+  const statusEl = document.getElementById('authStatus');
+  const submitBtn = document.getElementById('submitBtn');
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function setError(name, bad) {
+    const field = form.querySelector('[data-field="' + name + '"]');
+    if (field) field.classList.toggle('invalid', bad);
+  }
+
+  function setStatus(text, kind) {
+    statusEl.textContent = text || '';
+    statusEl.classList.remove('ok', 'bad');
+    if (kind) statusEl.classList.add(kind);
+  }
+
+  function passwordState() {
+    const value = passwordEl.value;
+    if (value.length === 0) {
+      hintEl.textContent = '10 characters minimum. Nothing is sent anywhere except this server.';
+      hintEl.classList.remove('ok', 'bad');
+    } else if (value.length < 10) {
+      hintEl.textContent = 'Too short: ' + (10 - value.length) + ' more character' + (10 - value.length === 1 ? '' : 's') + '.';
+      hintEl.classList.add('bad');
+      hintEl.classList.remove('ok');
+    } else {
+      hintEl.textContent = 'Length looks good.';
+      hintEl.classList.add('ok');
+      hintEl.classList.remove('bad');
+    }
+  }
+
+  passwordEl.addEventListener('input', passwordState);
+
+  ['name', 'email', 'password', 'confirm'].forEach((id) => {
+    const input = document.getElementById(id);
+    input.addEventListener('input', () => {
+      const field = input.closest('.field');
+      if (field && field.classList.contains('invalid')) setError(id, false);
+    });
+  });
+
+  fetch('/api/auth/me', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+    .then((res) => res.json())
+    .then((data) => { if (data && data.user) window.location.replace('/account'); })
+    .catch(() => {});
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setStatus('');
+
+    const name = nameEl.value.trim();
+    const email = emailEl.value.trim();
+    const password = passwordEl.value;
+    const confirm = confirmEl.value;
+
+    const checks = {
+      email: emailRe.test(email),
+      password: password.length >= 10 && password.length <= 200,
+      confirm: confirm === password && confirm.length > 0
+    };
+
+    Object.keys(checks).forEach((key) => setError(key, !checks[key]));
+    if (!Object.values(checks).every(Boolean)) {
+      setStatus('Check the highlighted fields.', 'bad');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.querySelector('span').textContent = 'Creating';
+    setStatus('Creating the account…');
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Account creation failed.');
+
+      setStatus('Account created. Opening it…', 'ok');
+      window.location.assign('/account');
+    } catch (err) {
+      setStatus(err.message || 'Account creation failed. Try again.', 'bad');
+      submitBtn.disabled = false;
+      submitBtn.querySelector('span').textContent = 'Create account';
+    }
+  });
+})();
+</script>
+</body>
+</html>

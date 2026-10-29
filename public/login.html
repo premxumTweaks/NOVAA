@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log in — NOVA</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Sign in to your NOVA account.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2305070c'/%3E%3Ccircle cx='32' cy='32' r='12' fill='%2300ffc3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/base.css">
+</head>
+<body class="page-auth">
+
+<div id="preloader">
+  <div class="pre-inner">
+    <div class="pre-top"><span>nova / auth</span><span id="loadPct" class="pre-pct">000</span></div>
+    <div class="pre-bar"><i id="loadBar"></i></div>
+    <div class="pre-lines">
+      <span>&gt; opening session</span>
+      <span>&gt; checking credentials</span>
+      <span>&gt; restoring account</span>
+    </div>
+  </div>
+</div>
+
+<canvas id="gl"></canvas>
+<canvas id="fx"></canvas>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="cursor"><div class="cursor-dot"></div><div class="cursor-ring"></div></div>
+<div class="progress"><i id="bar"></i></div>
+<div class="page-transition"></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="/"><i></i>NOVA</a>
+  <nav class="nav-links">
+    <a href="/work" data-page="work">Work</a>
+    <a href="/studio" data-page="studio">Studio</a>
+    <a href="/contact" data-page="contact">Contact</a>
+    <a href="/login" data-auth data-page="auth">Log in</a>
+    <button id="soundToggle" class="sound-btn" aria-pressed="false">Sound off</button>
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+</header>
+
+<nav class="drawer" id="drawer" aria-label="Mobile">
+  <a href="/" data-page="home">Home</a>
+  <a href="/work" data-page="work">Work</a>
+  <a href="/studio" data-page="studio">Studio</a>
+  <a href="/contact" data-page="contact">Contact</a>
+  <a href="/login" data-auth data-page="auth">Log in</a>
+</nav>
+
+<main>
+  <section class="auth">
+    <div class="auth-card">
+      <div class="auth-head">
+        <div class="label">Account</div>
+        <h1 class="auth-title">Welcome<br><span class="outline">back.</span></h1>
+        <p class="auth-sub">Sign in to keep your brief, your projects and your session on this device.</p>
+      </div>
+
+      <form class="form auth-form" id="loginForm" novalidate>
+        <div class="field" data-field="email">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+          <span class="err">Enter a valid email address.</span>
+        </div>
+
+        <div class="field" data-field="password">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••••" required>
+          <span class="err">Enter your password.</span>
+        </div>
+
+        <label class="auth-check">
+          <input id="remember" name="remember" type="checkbox" checked>
+          <span>Keep me signed in for 30 days</span>
+        </label>
+
+        <button class="btn primary" type="submit" id="submitBtn"><span>Sign in</span><span class="arrow">↗</span></button>
+
+        <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="auth-divider">or</div>
+      <p class="auth-alt">No account yet? <a href="/register">Create one</a></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>© <span data-year>2026</span> NOVA Studio</span>
+  <span>Built with shaders &amp; cold coffee</span>
+  <span class="foot-links"><a href="/work">Work</a><a href="/studio">Studio</a><a href="/contact">Contact</a></span>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+<script>
+(() => {
+  'use strict';
+
+  const form = document.getElementById('loginForm');
+  const emailEl = document.getElementById('email');
+  const passwordEl = document.getElementById('password');
+  const rememberEl = document.getElementById('remember');
+  const statusEl = document.getElementById('authStatus');
+  const submitBtn = document.getElementById('submitBtn');
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function setError(name, bad) {
+    const field = form.querySelector('[data-field="' + name + '"]');
+    if (field) field.classList.toggle('invalid', bad);
+  }
+
+  function setStatus(text, kind) {
+    statusEl.textContent = text || '';
+    statusEl.classList.remove('ok', 'bad');
+    if (kind) statusEl.classList.add(kind);
+  }
+
+  ['email', 'password'].forEach((id) => {
+    const input = document.getElementById(id);
+    input.addEventListener('input', () => {
+      const field = input.closest('.field');
+      if (field && field.classList.contains('invalid')) setError(id, false);
+    });
+  });
+
+  fetch('/api/auth/me', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+    .then((res) => res.json())
+    .then((data) => { if (data && data.user) window.location.replace('/account'); })
+    .catch(() => {});
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setStatus('');
+
+    const email = emailEl.value.trim();
+    const password = passwordEl.value;
+    const okEmail = emailRe.test(email);
+    const okPassword = password.length >= 1;
+
+    setError('email', !okEmail);
+    setError('password', !okPassword);
+    if (!okEmail || !okPassword) return;
+
+    submitBtn.disabled = true;
+    submitBtn.querySelector('span').textContent = 'Signing in';
+    setStatus('Checking credentials…');
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ email, password, remember: rememberEl.checked })
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Sign in failed.');
+
+      setStatus('Signed in. Opening your account…', 'ok');
+      window.location.assign('/account');
+    } catch (err) {
+      setStatus(err.message || 'Sign in failed. Try again.', 'bad');
+      submitBtn.disabled = false;
+      submitBtn.querySelector('span').textContent = 'Sign in';
+    }
+  });
+})();
+</script>
+</body>
+</html>
